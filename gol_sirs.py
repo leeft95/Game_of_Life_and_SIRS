@@ -31,7 +31,10 @@ SIRS:
     
     Rules:
     
-    
+    • S → I with probability p1 if at least one neighbour of i is I; otherwise site
+      i is unchanged.
+    • I → R with probability p2.
+    • R → S with probability p3.
 
 """
 
