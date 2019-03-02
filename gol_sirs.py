@@ -267,14 +267,14 @@ I = 0
 
 if mes == 2:
     nt = 15
-    numSweeps = 1000
+    numSweeps = 10000
     ga = .5
     p1 = np.linspace(.2,.5,nt)
     p3 = np.linspace(0,1,nt)
 
 if mes == 1:
     nt = 20
-    numSweeps = 10000
+    numSweeps = 2000
     ga = .5
     p1 = np.linspace(0,1,nt)
     p3 = np.linspace(0,1,nt)
@@ -335,7 +335,7 @@ if a == 2 and mod == 4:
                 g.sirs_Update(p1[i],ga,p3[j],I,100)
                 for k in range(numSweeps):
                     g.sirs_Update(p1[i],ga,p3[j],I,2500)
-                    if k%10 == 0 and k>50:
+                    if k%10 == 0 and k>100:
                         x,y = g.avg_sus()
                         mes_list.append(x)
                         mes_list2.append(y)
