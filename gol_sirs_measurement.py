@@ -242,8 +242,12 @@ if mes == 1:
                         for n in range(num):
                             if g.grid[m,n] == 1:
                                 I += 1
-                    
-                    I_list.append(I)
+                    if I == 0.0:
+                        I_list.append(0)
+                        break
+                    else:
+                        I_list.append(I)
+
             I_list = np.asarray(I_list)
             avg_i = np.mean(I_list)
             print(avg_i)
@@ -253,8 +257,8 @@ if mes == 1:
             avgvar[i,j] = var
 
             g = Gol_sirs(num,mod,1)
-            z += 1
-            bar.update(z)
+        z += 1
+        bar.update(z)
     
     print(avgI)
     plt.figure()
@@ -273,9 +277,9 @@ if mes == 1:
     plt.ylabel('p3')
     plt.colorbar()
     
+    bar.finish()
 
-
-###___Waves measurement___###   
+###___Waves cut measurement___###   
 if mes == 2:
     for i in range(len(p1)):
         I_list = []
@@ -312,7 +316,9 @@ if mes == 2:
     plt.xlabel('p1')
     plt.ylabel('var')
     
-###___Waves cut___###   
+    bar.finish()
+
+###___immune frac cut___###   
 if mes == 3:
     for i in range(len(p4)):
         I_list = []
@@ -327,8 +333,11 @@ if mes == 3:
                     for n in range(num):
                         if g.grid[m,n] == 1:
                             I += 1
-                
-                I_list.append(I)
+                if I == 0.0:
+                    I_list.append(0)
+                    break
+                else:
+                    I_list.append(I)
         I_list = np.asarray(I_list)
         avg_i = np.mean(I_list)
         print(str(avg_i) + ' i ')
@@ -348,6 +357,9 @@ if mes == 3:
     plt.title('imu frac')
     plt.xlabel('fraction')
     plt.ylabel('avg infec')
+    
+    bar.finish()
+
 
 ###___Glider velocity___###
 if mes == 4:
@@ -380,6 +392,9 @@ if mes == 4:
     plt.legend(loc = 'best')
     plt.xlabel('t(sweeps)')
     plt.ylabel('avg position')
+    
+    bar.finish()
+
     
     
         
