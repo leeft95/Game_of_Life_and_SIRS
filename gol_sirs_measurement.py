@@ -3,13 +3,64 @@
 Created on Mon Mar  4 13:10:35 2019
 
 @author: leeva
+
+
+
+Game of Life:
+    
+    Rules:
+        
+    The evolution of the Game of Life on a lattice is fully deterministic and is
+    set by the following set of rules:
+    • Any live cell with less than 2 live neighbours dies.
+    • Any live cell with 2 or 3 live neighbours lives on to the next step.
+    • Any live cell with more than 3 live neighbours dies.
+    • Any dead cell with exactly 3 live neighbours becomes alive.
+    
+    ------------------------------------------------------------------
+    Nearest neighbours arrangement:
+    
+    (north, south, east, west, and the four neighbours along the lattice
+    diagonals)
+    
+    i-1,j-1 | i-1,j | i-1,j+1
+    i,j-1   |i,j    | i,j+1
+    i+1,j-1 | i+1,j | i+1,j+1
+    
+
+SIRS:
+    
+    Rules:
+        
+        S == 0
+        I == 1
+        R == 2
+    
+    • S → I with probability p1 if at least one neighbour of i is I; otherwise site
+      i is unchanged.
+    • I → R with probability p2.
+    • R → S with probability p3.
+    
+    Measurements:
+        
+        - Phase diagram for SIRS. We'll be looking for a resolution of 0.05 in 
+        p1 and p3 (p2=0.5 is fixed). This is a 20 by 20 pixelation. For each 4
+        value of p1 and p3, we suggest an equilibration time of 100 sweeps, 
+        and a total measurement time of 1,000 sweeps, with measurement every 
+        10 (same as Ising). This should be doable in max 2 hrs with a good 
+        python code, so first check with smaller number of sweeps 
+        (e.g., 10-fold smaller) and lower resolution that the phase diagram 
+        is reasonable.
+        
+
 """
+
+
+
 
 import random
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from matplotlib import cm
 from progressbar import Percentage, ProgressBar,Bar,ETA
 
 
@@ -197,14 +248,14 @@ if mes == 2:
     var_list = []
     
 if mes == 3:
-    nt = 20  
+    nt = 100  
     p1 = 0.5#np.linspace(0.2,0.5,nt)
     p2 = 0.5
     p3 = 0.5#np.linspace(0,1,nt)
     p4 = np.linspace(0,1,nt)
     imu = 1
 
-    sweep = 10000
+    sweep = 100
     passes = num*num
     
     imu_list = []
@@ -295,8 +346,11 @@ if mes == 2:
                     for n in range(num):
                         if g.grid[m,n] == 1:
                             I += 1
-                
-                I_list.append(I)
+                if I == 0.0:
+                    I_list.append(0)
+                    break
+                else:
+                    I_list.append(I)
         I_list = np.asarray(I_list)
         avg_i = np.mean(I_list)
         print(avg_i)
@@ -343,7 +397,7 @@ if mes == 3:
         print(str(avg_i) + ' i ')
         avg_i2 = np.mean(I_list**2)
         var = (avg_i2 - avg_i**2)/(num**2)
-        std_error = np.std(avg_i)/(len(I_list))**2
+        std_error = np.std(I_list/num**2)/(len(I_list))**0.5
         print(std_error)
         imu_list.append(avg_i/(num**2))
         err_list.append(std_error)
