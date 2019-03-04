@@ -18,19 +18,12 @@ from progressbar import Percentage, ProgressBar,Bar,ETA
 class Gol_sirs():
     
     def __init__(self,n,mode,I):
-        vals = [1,0]
         self.n = n
         if mode == 1:
-            self.grid = np.random.choice(vals, n*n, p=[0.4, 0.6]).reshape(n, n)
-        elif mode == 2:
             self.grid = np.zeros(n*n).reshape(n,n)
             glider = np.array([[0, 0, 1],[1, 0, 1],[0, 1, 1]])
             self.grid[0:0+3, 0:0+3] = glider
-        elif mode == 3:
-            self.grid = np.zeros(n*n).reshape(n,n)
-            ossci = np.array([[0,0,0],[1,1,1],[0,0,0]])
-            self.grid[1:1+3,1:1+3] = ossci
-        elif mode == 4:
+        elif mode == 2:
 #            self.grid = np.random.choice([0,1,2], size=(n, n))
             self.grid = np.zeros(n*n).reshape(n,n)
             a = int(np.random.uniform(0, n))
@@ -38,6 +31,7 @@ class Gol_sirs():
             self.grid[a,b] = 1
         self.I = I
         
+###___Sirs update function___###        
 def sirs_Update(grid,p1,p2,p3,imu,p4):
     x = 0
     i = np.random.randint(0,num)
@@ -86,10 +80,58 @@ def sirs_Update(grid,p1,p2,p3,imu,p4):
             else:
                 return 2,i,j
             
+            
+###___update function for Game of Life___###       
+def gol_Update(grid,n):
+    grid_copy = grid.copy()
+    
+    for i in range(n):
+        for j in range(n):
+            
+            total = nearest_Neighbours_g(grid,i,j,n)
+            
+            if grid[i,j] == 1:
+                if (total < 2) or (total > 3):
+                    grid_copy[i,j] = 0
+            elif grid[i,j] == 0:
+                if total == 3:
+                    grid_copy[i,j] = 1
+                
+    grid = grid_copy
+    return grid_copy 
+ 
+###__nearest neighbours rules for GoL___###
+def nearest_Neighbours_g(grid,i,j,n):
+    
+    nN = (grid[i, (j-1)%n] +  
+                    grid[i, (j+1)%n] + 
+                    grid[(i-1)%n, j] + 
+                    grid[(i+1)%n, j] +
+                    grid[(i-1)%n, (j-1)%n] + 
+                    grid[(i-1)%n, (j+1)%n] +
+                    grid[(i+1)%n, (j-1)%n] + 
+                    grid[(i+1)%n, (j+1)%n])
+    
+    
+    total_Sum = nN
+    return total_Sum
+###_Center of Mass function___###
+def com(grid,n):
+    indices = np.argwhere(grid == 1)
+    ### Determine if cells are near boundaries ###
+    for i in range(len(indices)):
+        for j in range(0,1):
+             if (indices[i,j] == 0 or indices[i,j] == n-1):
+                     return None,None
+    com_X = np.mean(indices[:,0])
+    com_Y = np.mean(indices[:,1])
+    
+    return com_X,com_Y
+    
     
     
 
-
+print('This is the measurement program\n\n')
 while True:
     try:
         num = int(input('Input the integer dimension of the grid:\n'))
@@ -102,39 +144,30 @@ while True:
 while True:
     try:
         mod = int(input('Select the inital condition:\n' + 
-                        'Game of Life:\n 1 = random\n 2 = glider\n' + 
-                        ' 3 = oscillator\nSIRS\n 4 = SIRS\n'))
+                        'Game of Life:\n 1 = glider(measurement)\n' + 
+                        'SIRS\n 2 = SIRS\n'))
         if mod < 1 or mod > 4:
             raise ValueError
         else:
             break
     except(ValueError):
         print('Please input a valid option')
+
 while True:
     try:
-        a = int(input('Start ' + 
-                      'simulation or measurements:'+
-                      '\n 1 = Simulation \n 2 = Measurement\n'))
-        if a > 2 or a < 1:
+        mes = int(input('Choose the measurement:\nSIRS \n 1 = Phase and waves\n'+
+                        ' 2 = waves cut\n 3 = immune fraction\n \nGame of Life' +
+                        '\n 4 = glider velocity\n'))
+        if mes > 4 or mes < 1: 
+            raise ValueError
+        elif mes == 4 and mod == 2:
             raise ValueError
         else:
             break
     except(ValueError):
         print('please input a valid option')
-if a == 2:
-    while True:
-        try:
-            mes = int(input('Choose the measurement:\nSIRS \n 1 = Phase and waves\n'+
-                            ' 2 = waves cut\n 3 = immune fraction\n \nGame of Life' +
-                            '\n 4 = glider velocity\n'))
-            if mes > 4 or mes < 1: 
-                raise ValueError
-            else:
-                break
-        except(ValueError):
-            print('please input a valid option')
-else:
-    mes = 0
+
+###___Initilaise parameters depending on measurement choice___###  
     
 if mes == 1:
     nt = 20     
@@ -177,6 +210,12 @@ if mes == 3:
     imu_list = []
     err_list = []
 
+if mes == 4:
+    sweep = 1000
+    nt = 1
+    x_list = []
+    y_list = []
+
 g = Gol_sirs(num,mod,1)
 
 z = 0
@@ -185,6 +224,7 @@ I = 0
 I_2 = 0
 bar = ProgressBar(widgets=[Bar('=', '[', ']'), ' ', Percentage(), ' ', ETA(),'\n'], maxval=nt).start()
 
+###___Phase measurement___###
 if mes == 1:
     
     for i in range(len(p1)):
@@ -235,7 +275,7 @@ if mes == 1:
     
 
 
-    
+###___Waves measurement___###   
 if mes == 2:
     for i in range(len(p1)):
         I_list = []
@@ -272,6 +312,7 @@ if mes == 2:
     plt.xlabel('p1')
     plt.ylabel('var')
     
+###___Waves cut___###   
 if mes == 3:
     for i in range(len(p4)):
         I_list = []
@@ -308,5 +349,39 @@ if mes == 3:
     plt.xlabel('fraction')
     plt.ylabel('avg infec')
 
+###___Glider velocity___###
+if mes == 4:
+    t = 0
+    for i in range(sweep):
+        grid = gol_Update(g.grid,g.n)
+        g.grid = grid
+        x,y = com(g.grid,g.n)
+        if x != None:
+            if t == 0:
+                dist1 = np.sqrt(x**2. + y**2)
+            dist = np.sqrt(x**2. + y**2)
+            if t != 0:
+                if dist == dist1:
+                    break
+            x_list.append(dist)
+            y_list.append(t)
+            t += 1
+
+
+    t_dist = max(y_list)-min(y_list)
+    x_rise = max(x_list)-min(x_list)
+    
+    x_dist = (t_dist**2 + x_rise**2)**0.5
+    
+    velocity = x_dist/t_dist
+    
+    plt.scatter(y_list,x_list,label = ('velocity = {:0.3f} lattice position/sweep'
+                                       .format(velocity)))
+    plt.legend(loc = 'best')
+    plt.xlabel('t(sweeps)')
+    plt.ylabel('avg position')
+    
+    
+        
                 
         
