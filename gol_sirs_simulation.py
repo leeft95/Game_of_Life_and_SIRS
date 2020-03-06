@@ -78,7 +78,7 @@ class Gol_sirs():
             ossci = np.array([[0,0,0],[1,1,1],[0,0,0]])
             self.grid[1:1+3,1:1+3] = ossci
         elif mode == 4:
-#           self.grid = np.random.choice([0,1,2], size=(n, n))
+        #   self.grid = np.random.choice([0,1,2], size=(n, n))
             self.grid = np.zeros(n*n).reshape(n,n)
             a = int(np.random.uniform(0, n))
             b = int(np.random.uniform(0, n))
@@ -136,25 +136,28 @@ class Gol_sirs():
             nN = self.nearest_Neighbours_s(i,j)
             x = (np.random.uniform(low = 0,high = 1))
             
-            infec = 0       
-            for i in range(self.n):
-                for j in range(self.n):
-                    if self.grid[i,j] == 1:
-                        infec +=1
-            print(infec)
+            # infec = 0       
+            # for i in range(self.n):
+            #     for j in range(self.n):
+            #         if self.grid[i,j] == 1:
+            #             infec +=1
+            # print(infec)
             
             for k in range(len(nN)):
-                if nN[k] == 1 and self.grid[i,j] == 0:
-                    if  x < b:
-                        self.grid[i,j] = 1
-                        return self.grid
+                if nN[k] == 1:
+                    if self.grid[i,j] == 0:
+                        if  x < b:
+                            self.grid[i,j] = 1
+                            return self.grid
             
-            if self.grid[i,j] == 1 and x < g:
-                self.grid[i,j] = 2
-                return self.grid
-            if self.grid[i,j] == 2 and x < sus:
-                self.grid[i,j] = 0
-                return self.grid
+            if self.grid[i,j] == 1:
+                if x < g:
+                    self.grid[i,j] = 2
+                    return self.grid
+            if self.grid[i,j] == 2:
+                if x < sus:
+                    self.grid[i,j] = 0
+                    return self.grid
 
             
         return self.grid
@@ -199,7 +202,7 @@ def update(frameNum,img,grid):
 
 def update_s(frameNum,img,grid,b,g,sus,I):
     #for i in range(10):
-    new = Gol_sirs.sirs_Update(grid,b,g,sus,I,100) 
+    new = Gol_sirs.sirs_Update(grid,b,g,sus,I,1000) 
     img.set_data(new)
     
     
